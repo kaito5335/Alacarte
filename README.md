@@ -40,7 +40,7 @@ Inertiaを介してLaravel側からVueのページコンポーネントに直接
 
 ```bash
 # リポジトリを取得
-git clone <このリポジトリのURL>
+git clone https://github.com/kaito5335/Alacarte.git
 cd Alacarte
 
 # .env を用意
