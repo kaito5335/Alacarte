@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose exec app php artisan test:*)",
+      "Bash(docker compose exec app ./vendor/bin/pint:*)",
+      "Bash(docker compose ps:*)",
+      "Bash(npm run build:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)"
+    ],
+    "deny": [
+      "Bash(docker compose exec app php artisan migrate:fresh:*)",
+      "Bash(docker compose down -v:*)",
+      "Bash(git push --force:*)",
+      "Bash(rm -rf:*)",
+      "Read(./.env)"
+    ]
+  }
+}
