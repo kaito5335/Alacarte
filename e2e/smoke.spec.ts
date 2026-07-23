@@ -1,0 +1,74 @@
+import { expect, test, type Page } from '@playwright/test';
+
+/**
+ * ページ上で発生したコンソールエラーと未処理例外を集める。
+ * Vue のマウント失敗（画面が真っ白／真っ黒になるやつ）はここに出る。
+ */
+const collectPageErrors = (page: Page): string[] => {
+    const errors: string[] = [];
+
+    page.on('console', (message) => {
+        if (message.type() === 'error') {
+            errors.push(`console.error: ${message.text()}`);
+        }
+    });
+
+    page.on('pageerror', (error) => {
+        errors.push(`pageerror: ${error.message}`);
+    });
+
+    page.on('requestfailed', (request) => {
+        errors.push(`requestfailed: ${request.url()} (${request.failure()?.errorText})`);
+    });
+
+    return errors;
+};
+
+/** 一覧に並ぶレシピカードのリンク（「レシピを投稿」ボタンなどを拾わないよう画像付きに限定する） */
+const recipeCards = (page: Page) => page.locator('a[href*="/recipes/"]:has(img)');
+
+const login = async (page: Page) => {
+    await page.goto('/login');
+    await page.getByLabel('Email address').fill('test@example.com');
+    await page.getByLabel('Password', { exact: true }).fill('password');
+    await page.getByRole('button', { name: 'Log in' }).click();
+    await page.waitForURL('**/dashboard');
+};
+
+test('ゲストでもレシピ一覧が描画される', async ({ page }) => {
+    const errors = collectPageErrors(page);
+
+    await page.goto('/recipes');
+
+    await expect(page.getByRole('heading', { name: 'レシピ', exact: true })).toBeVisible();
+    // シード済みのレシピカードが並んでいること
+    await expect(recipeCards(page).first().locator('img')).toBeVisible();
+    await expect(page.getByText('まだレシピがありません。')).toHaveCount(0);
+
+    expect(errors).toEqual([]);
+});
+
+test('ゲストでもレシピ詳細が描画される', async ({ page }) => {
+    const errors = collectPageErrors(page);
+
+    await page.goto('/recipes');
+    await recipeCards(page).first().click();
+
+    await expect(page.getByRole('heading', { name: '材料（' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '作り方' })).toBeVisible();
+
+    expect(errors).toEqual([]);
+});
+
+test('ログインするとレシピ投稿フォームが開く', async ({ page }) => {
+    const errors = collectPageErrors(page);
+
+    await login(page);
+    await page.goto('/recipes/create');
+
+    await expect(page.getByRole('heading', { name: 'レシピを投稿' })).toBeVisible();
+    await expect(page.getByLabel('タイトル')).toBeVisible();
+    await expect(page.getByRole('button', { name: '投稿する' })).toBeVisible();
+
+    expect(errors).toEqual([]);
+});

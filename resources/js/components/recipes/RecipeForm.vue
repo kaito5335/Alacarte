@@ -51,7 +51,7 @@ const onStepImagesChange = (event: Event, index: number) => {
 const submit = () => {
     if (isEdit.value && props.recipe) {
         // multipart で送るため PUT ではなく POST + _method で送信する
-        form.transform((data) => ({ ...data, _method: 'put' })).post(route('recipes.update', props.recipe.id));
+        form.transform((data) => ({ ...data, _method: 'put' })).post(route('recipes.update', { recipe: props.recipe.id }));
 
         return;
     }

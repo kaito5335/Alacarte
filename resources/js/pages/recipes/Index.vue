@@ -31,7 +31,7 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'レシピ', href: '/recipes' }]
                 <Link
                     v-for="recipe in recipes.data"
                     :key="recipe.id"
-                    :href="route('recipes.show', recipe.id)"
+                    :href="route('recipes.show', { recipe: recipe.id })"
                     class="group overflow-hidden rounded-xl border border-sidebar-border/70 transition hover:border-sidebar-border hover:shadow-sm dark:border-sidebar-border"
                 >
                     <img :src="recipe.recipe_image_url" :alt="recipe.title" class="aspect-video w-full object-cover" />
@@ -57,7 +57,7 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'レシピ', href: '/recipes' }]
             </div>
 
             <div v-if="recipes.meta.last_page > 1" class="flex flex-wrap justify-center gap-1">
-                <template v-for="link in recipes.links" :key="link.label">
+                <template v-for="link in recipes.meta.links" :key="link.label">
                     <Link
                         v-if="link.url"
                         :href="link.url"

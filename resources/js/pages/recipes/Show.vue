@@ -28,11 +28,11 @@ const isOwner = computed(() => page.props.auth?.user?.id === recipe.value.user?.
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     { title: 'レシピ', href: '/recipes' },
-    { title: recipe.value.title, href: route('recipes.show', recipe.value.id) },
+    { title: recipe.value.title, href: route('recipes.show', { recipe: recipe.value.id }) },
 ]);
 
 const destroy = () => {
-    router.delete(route('recipes.destroy', recipe.value.id));
+    router.delete(route('recipes.destroy', { recipe: recipe.value.id }));
 };
 </script>
 
@@ -51,7 +51,7 @@ const destroy = () => {
 
                 <div v-if="isOwner" class="flex gap-2">
                     <Button variant="secondary" as-child>
-                        <Link :href="route('recipes.edit', recipe.id)">編集</Link>
+                        <Link :href="route('recipes.edit', { recipe: recipe.id })">編集</Link>
                     </Button>
 
                     <Dialog>

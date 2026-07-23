@@ -14,8 +14,8 @@ const recipe = computed(() => props.recipe.data);
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     { title: 'レシピ', href: '/recipes' },
-    { title: recipe.value.title, href: route('recipes.show', recipe.value.id) },
-    { title: '編集', href: route('recipes.edit', recipe.value.id) },
+    { title: recipe.value.title, href: route('recipes.show', { recipe: recipe.value.id }) },
+    { title: '編集', href: route('recipes.edit', { recipe: recipe.value.id }) },
 ]);
 </script>
 

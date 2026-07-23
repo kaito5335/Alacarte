@@ -2,19 +2,20 @@
 import UserInfo from '@/components/UserInfo.vue';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type SharedData, type User } from '@/types';
-import { usePage } from '@inertiajs/vue3';
-import { ChevronsUpDown } from 'lucide-vue-next';
+import { type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/vue3';
+import { ChevronsUpDown, LogIn } from 'lucide-vue-next';
+import { computed } from 'vue';
 import UserMenuContent from './UserMenuContent.vue';
 
 const page = usePage<SharedData>();
-const user = page.props.auth.user as User;
+const user = computed(() => page.props.auth.user);
 </script>
 
 <template>
     <SidebarMenu>
         <SidebarMenuItem>
-            <DropdownMenu>
+            <DropdownMenu v-if="user">
                 <DropdownMenuTrigger as-child>
                     <SidebarMenuButton size="lg" class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
                         <UserInfo :user="user" />
@@ -25,6 +26,13 @@ const user = page.props.auth.user as User;
                     <UserMenuContent :user="user" />
                 </DropdownMenuContent>
             </DropdownMenu>
+
+            <SidebarMenuButton v-else as-child>
+                <Link :href="route('login')">
+                    <LogIn class="size-4" />
+                    <span>ログイン</span>
+                </Link>
+            </SidebarMenuButton>
         </SidebarMenuItem>
     </SidebarMenu>
 </template>

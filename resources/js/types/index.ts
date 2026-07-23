@@ -1,7 +1,8 @@
 import type { LucideIcon } from 'lucide-vue-next';
 
 export interface Auth {
-    user: User;
+    /** 未ログイン時は null */
+    user: User | null;
 }
 
 export interface BreadcrumbItem {
@@ -27,11 +28,14 @@ export interface SharedData {
         defaults: Record<string, unknown>;
         routes: Record<string, string>;
     };
+    // Inertia の usePage<T> は T が PageProps（インデックスシグネチャ必須）であることを要求する
+    [key: string]: unknown;
 }
 
 export interface User {
     id: number;
     name: string;
+    handle: string;
     email: string;
     avatar?: string;
     email_verified_at: string | null;
