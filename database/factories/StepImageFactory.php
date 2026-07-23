@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Step;
 use App\Models\StepImage;
+use Database\Factories\Support\PlaceholderImage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +21,7 @@ class StepImageFactory extends Factory
     {
         return [
             'step_id' => Step::factory(),
-            'step_image_path' => 'steps/'.fake()->uuid().'.jpg',
+            'step_image_path' => PlaceholderImage::store('steps', 'Step'),
         ];
     }
 }

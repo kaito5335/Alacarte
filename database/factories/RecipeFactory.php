@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Recipe;
 use App\Models\User;
+use Database\Factories\Support\PlaceholderImage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -61,7 +62,7 @@ class RecipeFactory extends Factory
             'user_id' => User::factory(),
             'title' => fake()->randomElement(self::$titles),
             'description' => fake()->optional(0.8)->randomElement(self::$descriptions),
-            'recipe_image_path' => 'recipes/'.fake()->uuid().'.jpg',
+            'recipe_image_path' => PlaceholderImage::store('recipes', 'Recipe'),
             'cooking_time' => fake()->numberBetween(5, 120),
             'servings' => fake()->numberBetween(1, 6),
             'view_count' => fake()->numberBetween(0, 500),
