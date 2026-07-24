@@ -35,6 +35,45 @@ const login = async (page: Page) => {
     await page.waitForURL('**/dashboard');
 };
 
+test('ゲストでもTopのみんなのレシピが描画される', async ({ page }) => {
+    const errors = collectPageErrors(page);
+
+    await page.goto('/');
+
+    await expect(page.getByRole('heading', { name: '今日は何を作る？' })).toBeVisible();
+    await expect(recipeCards(page).first().locator('img')).toBeVisible();
+
+    expect(errors).toEqual([]);
+});
+
+test('Topのタブを切り替えられる', async ({ page }) => {
+    const errors = collectPageErrors(page);
+
+    await page.goto('/');
+
+    // ゲストのフォロー中タブはログイン導線が出る
+    await page.getByRole('button', { name: 'フォロー中' }).click();
+    await expect(page.getByText('ログインすると、フォロー中のユーザーのレシピが並びます。')).toBeVisible();
+
+    // みんなのレシピに戻せる
+    await page.getByRole('button', { name: 'みんなのレシピ' }).click();
+    await expect(recipeCards(page).first().locator('img')).toBeVisible();
+
+    expect(errors).toEqual([]);
+});
+
+test('ログインするとフォロー中タブにレシピが並ぶ', async ({ page }) => {
+    const errors = collectPageErrors(page);
+
+    await login(page);
+    await page.goto('/?tab=following');
+
+    // シードで test user は3人フォローしており、そのレシピが存在する
+    await expect(recipeCards(page).first().locator('img')).toBeVisible();
+
+    expect(errors).toEqual([]);
+});
+
 test('ゲストでもレシピ一覧が描画される', async ({ page }) => {
     const errors = collectPageErrors(page);
 

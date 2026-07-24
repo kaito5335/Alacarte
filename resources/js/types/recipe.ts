@@ -74,6 +74,17 @@ export interface Paginated<T> {
     };
 }
 
+/**
+ * Topフィードのプロップ。
+ * 「みんなのレシピ」はランダム表示でページ送りしないため meta / links を持たず、
+ * 「フォロー中」はページネーションするため持つ。
+ */
+export interface Feed<T> {
+    data: T[];
+    links?: Paginated<T>['links'];
+    meta?: Paginated<T>['meta'];
+}
+
 /** フォーム入力中の材料。id を持たない点が Ingredient と異なる */
 export interface IngredientInput {
     [key: string]: FormDataConvertible;

@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, UtensilsCrossed } from 'lucide-vue-next';
+import { BookOpen, Folder, Home, LayoutGrid, UtensilsCrossed } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from './AppLogo.vue';
 
@@ -13,6 +13,11 @@ const page = usePage<SharedData>();
 
 // Dashboard は認証必須ルートなので、ゲストには出さない
 const mainNavItems = computed<NavItem[]>(() => [
+    {
+        title: 'ホーム',
+        href: '/',
+        icon: Home,
+    },
     {
         title: 'レシピ',
         href: '/recipes',
@@ -49,7 +54,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('recipes.index')">
+                        <Link :href="route('home')">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>
