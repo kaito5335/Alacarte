@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -45,5 +46,19 @@ class Recipe extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(RecipeComment::class);
+    }
+
+    /**
+     * 閲覧者がお気に入り登録済みかを is_favorited として付与する。
+     * サブクエリ1本で解決するので一覧でも N+1 にならない。ゲスト（null）は常に false。
+     *
+     * @param  Builder<Recipe>  $query
+     * @return Builder<Recipe>
+     */
+    public function scopeWithFavoritedBy(Builder $query, ?User $user): Builder
+    {
+        return $query->withExists([
+            'favorites as is_favorited' => fn ($favorites) => $favorites->where('user_id', $user?->id),
+        ]);
     }
 }

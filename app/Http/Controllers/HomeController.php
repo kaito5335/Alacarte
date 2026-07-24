@@ -31,16 +31,16 @@ class HomeController extends Controller
             'tab' => $tab,
             'recipes' => $tab === 'following'
                 ? $this->followingFeed($request)
-                : $this->randomFeed(),
+                : $this->randomFeed($request),
         ]);
     }
 
     /**
      * みんなのレシピ。毎回ランダムに引き直す。
      */
-    private function randomFeed(): AnonymousResourceCollection
+    private function randomFeed(Request $request): AnonymousResourceCollection
     {
-        $recipes = $this->baseQuery()
+        $recipes = $this->baseQuery($request)
             ->inRandomOrder()
             ->limit(self::RANDOM_FEED_LIMIT)
             ->get();
@@ -59,7 +59,7 @@ class HomeController extends Controller
             return RecipeResource::collection(collect());
         }
 
-        $recipes = $this->baseQuery()
+        $recipes = $this->baseQuery($request)
             ->whereIn('user_id', $user->followings()->select('users.id'))
             ->latest()
             ->paginate(self::FOLLOWING_FEED_PER_PAGE)
@@ -73,10 +73,11 @@ class HomeController extends Controller
      *
      * @return Builder<Recipe>
      */
-    private function baseQuery(): Builder
+    private function baseQuery(Request $request): Builder
     {
         return Recipe::query()
             ->with('user')
-            ->withCount(['favorites', 'comments']);
+            ->withCount(['favorites', 'comments'])
+            ->withFavoritedBy($request->user());
     }
 }

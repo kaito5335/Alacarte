@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateRecipeRequest;
 use App\Http\Resources\RecipeResource;
 use App\Models\Recipe;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -17,13 +18,14 @@ class RecipeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $this->authorize('viewAny', Recipe::class);
 
         $recipes = Recipe::query()
             ->with('user')
             ->withCount(['favorites', 'comments'])
+            ->withFavoritedBy($request->user())
             ->latest()
             ->paginate(20);
 
@@ -57,14 +59,15 @@ class RecipeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Recipe $recipe): Response
+    public function show(Request $request, Recipe $recipe): Response
     {
         $this->authorize('view', $recipe);
 
         $recipe->increment('view_count');
 
         $recipe->load(['user', 'ingredients', 'steps.stepImages'])
-            ->loadCount(['favorites', 'comments']);
+            ->loadCount(['favorites', 'comments'])
+            ->loadExists(['favorites as is_favorited' => fn ($favorites) => $favorites->where('user_id', $request->user()?->id)]);
 
         return Inertia::render('recipes/Show', [
             'recipe' => new RecipeResource($recipe),

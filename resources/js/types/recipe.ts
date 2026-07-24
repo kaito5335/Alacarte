@@ -39,6 +39,8 @@ export interface Recipe {
     steps?: Step[];
     favorites_count?: number;
     comments_count?: number;
+    /** withFavoritedBy スコープを通したときだけ含まれる */
+    is_favorited?: boolean;
     created_at: string;
 }
 

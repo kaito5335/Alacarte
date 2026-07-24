@@ -28,6 +28,8 @@ class RecipeResource extends JsonResource
             'steps' => StepResource::collection($this->whenLoaded('steps')),
             'favorites_count' => $this->whenCounted('favorites'),
             'comments_count' => $this->whenCounted('comments'),
+            // withFavoritedBy スコープを通したときだけ含まれる
+            'is_favorited' => $this->whenHas('is_favorited', fn ($value) => (bool) $value),
             'created_at' => $this->created_at,
         ];
     }

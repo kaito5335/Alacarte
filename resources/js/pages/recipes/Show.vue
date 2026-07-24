@@ -14,7 +14,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import type { Recipe } from '@/types/recipe';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Clock, Eye, Users } from 'lucide-vue-next';
+import { Clock, Eye, Heart, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -24,7 +24,22 @@ const props = defineProps<{
 const page = usePage<SharedData>();
 
 const recipe = computed(() => props.recipe.data);
+const isLoggedIn = computed(() => page.props.auth.user !== null);
 const isOwner = computed(() => page.props.auth?.user?.id === recipe.value.user?.id);
+
+/** お気に入りのトグル。押した位置を保ったまま再描画する */
+const toggleFavorite = () => {
+    const params = { recipe: recipe.value.id };
+    const options = { preserveScroll: true };
+
+    if (recipe.value.is_favorited) {
+        router.delete(route('favorites.destroy', params), options);
+
+        return;
+    }
+
+    router.post(route('favorites.store', params), {}, options);
+};
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     { title: 'レシピ', href: '/recipes' },
@@ -78,6 +93,13 @@ const destroy = () => {
                 <span class="flex items-center gap-1"><Clock class="h-4 w-4" />{{ recipe.cooking_time }}分</span>
                 <span class="flex items-center gap-1"><Users class="h-4 w-4" />{{ recipe.servings }}人分</span>
                 <span class="flex items-center gap-1"><Eye class="h-4 w-4" />{{ recipe.view_count }}</span>
+
+                <Button v-if="isLoggedIn" variant="ghost" size="sm" class="gap-1.5" @click="toggleFavorite">
+                    <Heart class="h-4 w-4" :class="recipe.is_favorited ? 'fill-red-500 text-red-500' : ''" />
+                    {{ recipe.is_favorited ? 'お気に入り解除' : 'お気に入り' }}
+                    <span>({{ recipe.favorites_count }})</span>
+                </Button>
+                <span v-else class="flex items-center gap-1"><Heart class="h-4 w-4" />{{ recipe.favorites_count }}</span>
             </div>
 
             <p v-if="recipe.description" class="whitespace-pre-wrap">{{ recipe.description }}</p>

@@ -111,3 +111,28 @@ test('ログインするとレシピ投稿フォームが開く', async ({ page 
 
     expect(errors).toEqual([]);
 });
+
+test('お気に入りを登録して一覧に出し、解除できる', async ({ page }) => {
+    const errors = collectPageErrors(page);
+
+    await login(page);
+    await page.goto('/recipes');
+
+    const title = await recipeCards(page).first().locator('h2').innerText();
+    await recipeCards(page).first().click();
+
+    // 直前の状態に関わらず「お気に入り」できる状態から始める
+    const removeButton = page.getByRole('button', { name: 'お気に入り解除' });
+    if (await removeButton.isVisible()) {
+        await removeButton.click();
+    }
+
+    await page.getByRole('button', { name: 'お気に入り', exact: false }).first().click();
+    await expect(page.getByRole('button', { name: 'お気に入り解除' })).toBeVisible();
+
+    await page.goto('/favorites');
+    await expect(page.getByRole('heading', { name: 'お気に入り' })).toBeVisible();
+    await expect(page.getByText(title, { exact: true })).toBeVisible();
+
+    expect(errors).toEqual([]);
+});
