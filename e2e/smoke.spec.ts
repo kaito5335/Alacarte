@@ -146,6 +146,31 @@ test('投稿者をフォロー・解除できる', async ({ page }) => {
     expect(errors).toEqual([]);
 });
 
+test('コメントを投稿し、いいねして、削除できる', async ({ page }) => {
+    const errors = collectPageErrors(page);
+    const body = `E2Eテストのコメント ${Date.now()}`;
+
+    await login(page);
+    await page.goto('/recipes/31');
+
+    await page.getByPlaceholder('作ってみた感想を書いてみましょう').fill(body);
+    await page.getByRole('button', { name: 'コメントする' }).click();
+
+    const comment = page.locator('li').filter({ hasText: body });
+    await expect(comment).toBeVisible();
+
+    // 自分のコメントにいいねして数が増えること
+    const good = comment.getByRole('button', { name: 'いいね' });
+    await expect(good).toContainText('0');
+    await good.click();
+    await expect(good).toContainText('1');
+
+    await comment.getByRole('button', { name: 'コメントを削除' }).click();
+    await expect(comment).toHaveCount(0);
+
+    expect(errors).toEqual([]);
+});
+
 test('お気に入りを登録して一覧に出し、解除できる', async ({ page }) => {
     const errors = collectPageErrors(page);
 

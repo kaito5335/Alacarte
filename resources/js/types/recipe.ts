@@ -76,6 +76,16 @@ export interface Paginated<T> {
     };
 }
 
+export interface RecipeComment {
+    id: number;
+    description: string;
+    user?: UserSummary;
+    goods_count?: number;
+    /** withGoodedBy スコープを通したときだけ含まれる */
+    is_gooded?: boolean;
+    created_at: string;
+}
+
 /**
  * Topフィードのプロップ。
  * 「みんなのレシピ」はランダム表示でページ送りしないため meta / links を持たず、

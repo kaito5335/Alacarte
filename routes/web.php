@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\CommentGoodController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\RecipeCommentController;
 use App\Http\Controllers\RecipeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -23,6 +25,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::post('users/{user}/follow', [FollowController::class, 'store'])->name('follows.store');
     Route::delete('users/{user}/follow', [FollowController::class, 'destroy'])->name('follows.destroy');
+
+    Route::post('recipes/{recipe}/comments', [RecipeCommentController::class, 'store'])->name('comments.store');
+    Route::delete('comments/{comment}', [RecipeCommentController::class, 'destroy'])->name('comments.destroy');
+
+    Route::post('comments/{comment}/good', [CommentGoodController::class, 'store'])->name('comment-goods.store');
+    Route::delete('comments/{comment}/good', [CommentGoodController::class, 'destroy'])->name('comment-goods.destroy');
 });
 
 Route::resource('recipes', RecipeController::class)->only(['index', 'show']);

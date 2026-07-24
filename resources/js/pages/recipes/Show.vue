@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CommentSection from '@/components/recipes/CommentSection.vue';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -12,13 +13,14 @@ import {
 } from '@/components/ui/dialog';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import type { Recipe } from '@/types/recipe';
+import type { Recipe, RecipeComment } from '@/types/recipe';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { Clock, Eye, Heart, UserCheck, UserPlus, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const props = defineProps<{
     recipe: { data: Recipe };
+    comments: { data: RecipeComment[] };
     isFollowingAuthor: boolean;
 }>();
 
@@ -171,6 +173,8 @@ const destroy = () => {
                     </div>
                 </div>
             </section>
+
+            <CommentSection :recipe-id="recipe.id" :comments="comments.data" />
         </div>
     </AppLayout>
 </template>

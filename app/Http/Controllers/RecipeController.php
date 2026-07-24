@@ -6,6 +6,7 @@ use App\Actions\Recipe\CreateRecipeAction;
 use App\Actions\Recipe\UpdateRecipeAction;
 use App\Http\Requests\StoreRecipeRequest;
 use App\Http\Requests\UpdateRecipeRequest;
+use App\Http\Resources\RecipeCommentResource;
 use App\Http\Resources\RecipeResource;
 use App\Models\Recipe;
 use Illuminate\Http\RedirectResponse;
@@ -69,8 +70,17 @@ class RecipeController extends Controller
             ->loadCount(['favorites', 'comments'])
             ->loadExists(['favorites as is_favorited' => fn ($favorites) => $favorites->where('user_id', $request->user()?->id)]);
 
+        // コメントは新しい順。投稿者といいね数・いいね済みをまとめて解決する（N+1対策）
+        $comments = $recipe->comments()
+            ->with('user')
+            ->withCount('goods')
+            ->withGoodedBy($request->user())
+            ->latest()
+            ->get();
+
         return Inertia::render('recipes/Show', [
             'recipe' => new RecipeResource($recipe),
+            'comments' => RecipeCommentResource::collection($comments),
             'isFollowingAuthor' => (bool) $request->user()?->followings()->whereKey($recipe->user_id)->exists(),
         ]);
     }
