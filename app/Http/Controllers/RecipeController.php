@@ -71,6 +71,7 @@ class RecipeController extends Controller
 
         return Inertia::render('recipes/Show', [
             'recipe' => new RecipeResource($recipe),
+            'isFollowingAuthor' => (bool) $request->user()?->followings()->whereKey($recipe->user_id)->exists(),
         ]);
     }
 

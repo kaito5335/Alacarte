@@ -9,10 +9,11 @@ class FollowPolicy
 {
     /**
      * Determine whether the user can create models.
+     * 自分自身はフォローできない。
      */
-    public function create(User $user): bool
+    public function create(User $user, User $target): bool
     {
-        return true;
+        return $user->id !== $target->id;
     }
 
     /**

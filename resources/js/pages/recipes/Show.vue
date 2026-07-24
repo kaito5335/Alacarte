@@ -14,11 +14,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import type { Recipe } from '@/types/recipe';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Clock, Eye, Heart, Users } from 'lucide-vue-next';
+import { Clock, Eye, Heart, UserCheck, UserPlus, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const props = defineProps<{
     recipe: { data: Recipe };
+    isFollowingAuthor: boolean;
 }>();
 
 const page = usePage<SharedData>();
@@ -41,6 +42,28 @@ const toggleFavorite = () => {
     router.post(route('favorites.store', params), {}, options);
 };
 
+/** 投稿者のフォローをトグルする。自分のレシピとゲストには出さない */
+const canFollowAuthor = computed(() => isLoggedIn.value && !isOwner.value && recipe.value.user !== undefined);
+
+const toggleFollow = () => {
+    const author = recipe.value.user;
+
+    if (author === undefined) {
+        return;
+    }
+
+    const params = { user: author.id };
+    const options = { preserveScroll: true };
+
+    if (props.isFollowingAuthor) {
+        router.delete(route('follows.destroy', params), options);
+
+        return;
+    }
+
+    router.post(route('follows.store', params), {}, options);
+};
+
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
     { title: 'レシピ', href: '/recipes' },
     { title: recipe.value.title, href: route('recipes.show', { recipe: recipe.value.id }) },
@@ -61,7 +84,20 @@ const destroy = () => {
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div class="flex flex-col gap-2">
                     <h1 class="text-2xl font-semibold">{{ recipe.title }}</h1>
-                    <p v-if="recipe.user" class="text-sm text-muted-foreground">by {{ recipe.user.name }} (@{{ recipe.user.handle }})</p>
+                    <div v-if="recipe.user" class="flex flex-wrap items-center gap-2">
+                        <p class="text-sm text-muted-foreground">by {{ recipe.user.name }} (@{{ recipe.user.handle }})</p>
+                        <Button
+                            v-if="canFollowAuthor"
+                            :variant="isFollowingAuthor ? 'secondary' : 'outline'"
+                            size="sm"
+                            class="gap-1.5"
+                            @click="toggleFollow"
+                        >
+                            <UserCheck v-if="isFollowingAuthor" class="h-3.5 w-3.5" />
+                            <UserPlus v-else class="h-3.5 w-3.5" />
+                            {{ isFollowingAuthor ? 'フォロー中' : 'フォロー' }}
+                        </Button>
+                    </div>
                 </div>
 
                 <div v-if="isOwner" class="flex gap-2">

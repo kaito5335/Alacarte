@@ -3,10 +3,17 @@
 use App\Models\Follow;
 use App\Models\User;
 
-test('ログイン済みユーザーはフォローできる', function () {
+test('ログイン済みユーザーは他人をフォローできる', function () {
+    $user = User::factory()->create();
+    $target = User::factory()->create();
+
+    expect($user->can('create', [Follow::class, $target]))->toBeTrue();
+});
+
+test('自分自身はフォローできない', function () {
     $user = User::factory()->create();
 
-    expect($user->can('create', Follow::class))->toBeTrue();
+    expect($user->can('create', [Follow::class, $user]))->toBeFalse();
 });
 
 test('フォローした本人はフォローを解除できる', function () {

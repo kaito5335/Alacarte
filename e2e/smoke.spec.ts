@@ -112,6 +112,40 @@ test('ログインするとレシピ投稿フォームが開く', async ({ page 
     expect(errors).toEqual([]);
 });
 
+test('投稿者をフォロー・解除できる', async ({ page }) => {
+    const errors = collectPageErrors(page);
+
+    await login(page);
+
+    // 他人のレシピを探す（自分のレシピにはフォローボタンが出ない）
+    await page.goto('/recipes');
+    for (const card of await recipeCards(page).all()) {
+        if (!(await card.innerText()).includes('by Test User')) {
+            await card.click();
+            break;
+        }
+    }
+
+    // 「フォロー」「フォロー中」どちらの状態でも同じボタンを掴む
+    const toggle = page.getByRole('button', { name: /^フォロー/ });
+    // isVisible() は待機しないので、状態を見る前に描画完了を待つ
+    await expect(toggle).toBeVisible();
+
+    // 直前の実行結果に関わらず未フォローから始める
+    if ((await toggle.innerText()).includes('フォロー中')) {
+        await toggle.click();
+        await expect(toggle).not.toContainText('フォロー中');
+    }
+
+    await toggle.click();
+    await expect(toggle).toContainText('フォロー中');
+
+    await toggle.click();
+    await expect(toggle).not.toContainText('フォロー中');
+
+    expect(errors).toEqual([]);
+});
+
 test('お気に入りを登録して一覧に出し、解除できる', async ({ page }) => {
     const errors = collectPageErrors(page);
 
@@ -121,14 +155,19 @@ test('お気に入りを登録して一覧に出し、解除できる', async ({
     const title = await recipeCards(page).first().locator('h2').innerText();
     await recipeCards(page).first().click();
 
-    // 直前の状態に関わらず「お気に入り」できる状態から始める
-    const removeButton = page.getByRole('button', { name: 'お気に入り解除' });
-    if (await removeButton.isVisible()) {
-        await removeButton.click();
+    // 「お気に入り」「お気に入り解除」どちらの状態でも同じボタンを掴む
+    const toggle = page.getByRole('button', { name: /^お気に入り/ });
+    // isVisible() は待機しないので、状態を見る前に描画完了を待つ
+    await expect(toggle).toBeVisible();
+
+    // 直前の実行結果に関わらず未登録から始める
+    if ((await toggle.innerText()).includes('解除')) {
+        await toggle.click();
+        await expect(toggle).not.toContainText('解除');
     }
 
-    await page.getByRole('button', { name: 'お気に入り', exact: false }).first().click();
-    await expect(page.getByRole('button', { name: 'お気に入り解除' })).toBeVisible();
+    await toggle.click();
+    await expect(toggle).toContainText('解除');
 
     await page.goto('/favorites');
     await expect(page.getByRole('heading', { name: 'お気に入り' })).toBeVisible();
